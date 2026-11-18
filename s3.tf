@@ -17,28 +17,6 @@ resource "aws_s3_bucket_public_access_block" "website" {
 }
 
 
-# Bucket Policy, damit Cloudfront auf Bucket zugreifen darf
-data "aws_iam_policy_document" "allow_cloudfront" {
-  statement {
-    sid    = "AllowCloudFrontServicePrincipalReadOnly"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.website.arn}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.website_cdn.arn]
-    }
-  }
-}
-
 
 # Verknüpft data-Block mit S3-Bucket
 resource "aws_s3_bucket_policy" "website" {
@@ -57,4 +35,25 @@ resource "aws_s3_object" "index" {
   source_hash  = filemd5("${path.module}/website/index.html")
   content_type = "text/html"
 }
+
+# Bucket Policy, damit Cloudfront auf Bucket zugreifen darf
+data "aws_iam_policy_document" "allow_cloudfront" {
+  statement {
+    sid    = "AllowCloudFrontServicePrincipalReadOnly"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.website.arn}/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.website_cdn.arn]
+    }
+  }
+}
+
+
 

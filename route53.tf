@@ -4,8 +4,6 @@ resource "aws_route53_zone" "website" {
 }
 
 
-
-
 # Weiterleitungs-Regel
 resource "aws_route53_record" "website_ipv4" {
   zone_id = aws_route53_zone.website.zone_id
